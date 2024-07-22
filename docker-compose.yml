@@ -1,0 +1,35 @@
+services:
+  studentdb:
+    container_name: studentdb
+    ports:
+      - 3307:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: studentdb
+    extends:
+      file: common-config.yml
+      service: microservice-db-config
+
+  student:
+    image: "abhitechgyan/student:s5"
+    container_name: student-ms
+    ports:
+      - "9011:9010"
+    environment:
+      SPRING_APPLICATION_NAME: "student"
+      SPRING_DATASOURCE_URL: "jdbc:mysql://studentdb:3306/studentdb"
+    depends_on:
+      studentdb:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+
+networks:
+  abhishek:
+    driver: "bridge"
+    
+    
+volumes:
+  mysql-data:
